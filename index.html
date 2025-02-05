@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expediente Académico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        
+        /* Estilos para las barras de progreso */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .progress-label {
+            font-weight: bold;
+            flex: 1;
+        }
+        .progress-bar {
+            flex: 3;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress {
+            height: 100%;
+            background-color: #77ddff;
+            text-align: right;
+            line-height: 20px;
+            font-weight: bold;
+            padding-right: 10px;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        select, input, button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+        button.delete {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expediente Académico</h1>
+        
+        <h2>Progreso Académico</h2>
+        <div class="progress-container">
+            <div class="progress-wrapper">
+                <span class="progress-label">Formación Básica</span>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-basic">0 / 60</div>
+                </div>
+            </div>
+            <div class="progress-wrapper">
+                <span class="progress-label">Obligatorias</span>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-obligatory">0 / 144</div>
+                </div>
+            </div>
+            <div class="progress-wrapper">
+                <span class="progress-label">Optativas</span>
+                <div class="progress-bar">
+                    <div class="progress" id="progress-optional">0 / 36</div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Asignaturas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Créditos</th>
+                    <th>Tipo</th>
+                    <th>Calificación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="subject-list"></tbody>
+        </table>
+        
+        <h2>Añadir Nueva Asignatura</h2>
+        <div class="input-group">
+            <input type="text" id="name" placeholder="Nombre">
+            <select id="credits">
+                <option value="6">6</option>
+                <option value="12">12</option>
+            </select>
+            <select id="type">
+                <option value="Básica">Básica</option>
+                <option value="Obligatoria">Obligatoria</option>
+                <option value="Optativa">Optativa</option>
+            </select>
+            <input type="text" id="grade" placeholder="Calificación">
+            <button onclick="addSubject()">Añadir</button>
+        </div>
+    </div>
+
+    <script>
+        let subjects = [];
+
+        async function loadSubjects() {
+            try {
+                const response = await fetch('http://localhost:3000/asignaturas');
+                if (!response.ok) throw new Error("Error al cargar las asignaturas.");
+                subjects = await response.json();
+                
+                const tbody = document.getElementById('subject-list');
+                tbody.innerHTML = subjects.map(subject => `
+                    <tr>
+                        <td>${subject.name}</td>
+                        <td>${subject.credits}</td>
+                        <td>${subject.type}</td>
+                        <td>${subject.grade}</td>
+                        <td>
+                            <button onclick="editSubject('${subject.name}')">Editar</button>
+                            <button class="delete" onclick="deleteSubject('${subject.name}')">Eliminar</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                updateProgress();
+            } catch (error) {
+                console.error("Error al obtener asignaturas:", error);
+            }
+        }
+
+        function updateProgress() {
+            const totalBasic = 60;
+            const totalObligatory = 144;
+            const totalOptional = 36;
+
+            const basicCredits = subjects.filter(s => s.type === "Básica").reduce((acc, s) => acc + parseInt(s.credits), 0);
+            const obligatoryCredits = subjects.filter(s => s.type === "Obligatoria").reduce((acc, s) => acc + parseInt(s.credits), 0);
+            const optionalCredits = subjects.filter(s => s.type === "Optativa").reduce((acc, s) => acc + parseInt(s.credits), 0);
+
+            document.getElementById('progress-basic').style.width = `${(basicCredits / totalBasic) * 100}%`;
+            document.getElementById('progress-obligatory').style.width = `${(obligatoryCredits / totalObligatory) * 100}%`;
+            document.getElementById('progress-optional').style.width = `${(optionalCredits / totalOptional) * 100}%`;
+
+            document.getElementById('progress-basic').textContent = `${basicCredits} / ${totalBasic}`;
+            document.getElementById('progress-obligatory').textContent = `${obligatoryCredits} / ${totalObligatory}`;
+            document.getElementById('progress-optional').textContent = `${optionalCredits} / ${totalOptional}`;
+        }
+
+        window.onload = loadSubjects;
+    </script>
+</body>
+</html>

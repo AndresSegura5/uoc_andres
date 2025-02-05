@@ -1,0 +1,14 @@
+[
+  {
+    "name": "asdf",
+    "credits": 6,
+    "type": "Básica",
+    "grade": "2"
+  },
+  {
+    "name": "asdf",
+    "credits": "6",
+    "type": "Básica",
+    "grade": "2"
+  }
+]
