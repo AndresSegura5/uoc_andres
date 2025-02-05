@@ -203,7 +203,7 @@
     
         async function loadSubjects() {
             try {
-                const response = await fetch('https://uoc-andres.onrender.com');
+                const response = await fetch('https://uoc-andres.onrender.com/asignaturas');
                 if (!response.ok) throw new Error("Error al cargar las asignaturas.");
                 subjects = await response.json();
     
