@@ -312,7 +312,7 @@
         const updatedGrade = document.getElementById('edit-grade').value;
 
         try {
-            await fetch(`https://uoc-andres.onrender.com/${currentEditingSubject.name}`, {
+            await fetch(`https://uoc-andres.onrender.com/asignaturas/${currentEditingSubject.name}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: updatedName, credits: updatedCredits, type: updatedType, grade: updatedGrade })
