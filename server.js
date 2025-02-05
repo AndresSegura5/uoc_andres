@@ -48,15 +48,26 @@ app.delete('/asignaturas/:name', (req, res) => {
 // Actualizar una asignatura
 app.put('/asignaturas/:name', (req, res) => {
     const { name } = req.params;
-    const updatedSubject = req.body;
+    const { name: newName, credits, type, grade } = req.body;
+
     fs.readFile(FILE_PATH, 'utf8', (err, data) => {
+        if (err) return res.status(500).send('Error al leer el archivo.');
+
         let subjects = data ? JSON.parse(data) : [];
-        subjects = subjects.map(subject => subject.name === name ? updatedSubject : subject);
+
+        subjects = subjects.map(subject => {
+            if (subject.name === name) {
+                return { name: newName, credits, type, grade }; // ✅ Ahora actualiza en lugar de duplicar
+            }
+            return subject;
+        });
+
         fs.writeFile(FILE_PATH, JSON.stringify(subjects, null, 2), (err) => {
             if (err) return res.status(500).send('Error al escribir en el archivo.');
             res.json({ message: 'Asignatura actualizada', subjects });
         });
     });
 });
+
 
 app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
