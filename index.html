@@ -239,7 +239,7 @@
             }
     
             try {
-                await fetch('https://uoc-andres.onrender.com', {
+                await fetch('https://uoc-andres.onrender.com/asignaturas', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, credits, type, grade })
@@ -255,7 +255,7 @@
             if (!confirm(`¿Seguro que quieres eliminar "${name}"?`)) return;
     
             try {
-                await fetch(`https://uoc-andres.onrender.com/${name}`, { method: 'DELETE' });
+                await fetch(`https://uoc-andres.onrender.com/asignaturas/${name}`, { method: 'DELETE' });
                 loadSubjects();
             } catch (error) {
                 console.error("Error al eliminar asignatura:", error);
