@@ -154,7 +154,7 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Créditos</th>
-                    <th>Tipo</th>
+                    <th onclick="sortTable('type')">Tipo ⬍</th>
                     <th>Calificación</th>
                     <th>Acciones</th>
                 </tr>
@@ -200,130 +200,160 @@
     </div>
     <script>
         let subjects = [];
-    
-        async function loadSubjects() {
-            try {
-                const response = await fetch('https://uoc-andres.onrender.com/asignaturas');
-                if (!response.ok) throw new Error("Error al cargar las asignaturas.");
-                subjects = await response.json();
-    
-                updateProgress();
-    
-                const tbody = document.getElementById('subject-list');
-                tbody.innerHTML = subjects.map(subject => `
-                    <tr>
-                        <td>${subject.name}</td>
-                        <td>${subject.credits}</td>
-                        <td>${subject.type}</td>
-                        <td>${subject.grade}</td>
-                        <td>
-                            <button onclick="openEditModal('${subject.name}')">Editar</button>
-                            <button class="delete" onclick="deleteSubject('${subject.name}')">Eliminar</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                console.error("Error al obtener asignaturas:", error);
-            }
+        let sortOrder = 1;
+        let currentEditingSubject = null;
+
+            
+        function sortTable(column) {
+            subjects.sort((a, b) => {
+                if (typeof a[column] === "string") {
+                    return a[column].localeCompare(b[column]) * sortOrder;
+                }
+                return (a[column] - b[column]) * sortOrder;
+            });
+            sortOrder *= -1;
+            renderSubjects();
         }
     
-        async function addSubject() {
-            const name = document.getElementById('name').value;
-            const credits = document.getElementById('credits').value;
-            const type = document.getElementById('type').value;
-            const grade = document.getElementById('grade').value;
-    
-            if (!name || !credits || !type || !grade) {
-                alert("Por favor, completa todos los campos.");
-                return;
+        function renderSubjects() {
+            const tbody = document.getElementById('subject-list');
+            tbody.innerHTML = subjects.map(subject => `
+                <tr>
+                    <td>${subject.name}</td>
+                    <td>${subject.credits}</td>
+                    <td>${subject.type}</td>
+                    <td>${subject.grade}</td>
+                    <td>
+                        <button class="edit" onclick="openEditModal('${subject.name}')">Editar</button>
+                        <button class="delete" onclick="deleteSubject('${subject.name}')">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+            async function loadSubjects() {
+                try {
+                    const response = await fetch('https://uoc-andres.onrender.com/asignaturas');
+                    if (!response.ok) throw new Error("Error al cargar las asignaturas.");
+                    subjects = await response.json();
+        
+                    updateProgress();
+        
+                    const tbody = document.getElementById('subject-list');
+                    tbody.innerHTML = subjects.map(subject => `
+                        <tr>
+                            <td>${subject.name}</td>
+                            <td>${subject.credits}</td>
+                            <td>${subject.type}</td>
+                            <td>${subject.grade}</td>
+                            <td>
+                                <button onclick="openEditModal('${subject.name}')">Editar</button>
+                                <button class="delete" onclick="deleteSubject('${subject.name}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } catch (error) {
+                    console.error("Error al obtener asignaturas:", error);
+                }
+            }
+        
+            async function addSubject() {
+                const name = document.getElementById('name').value;
+                const credits = document.getElementById('credits').value;
+                const type = document.getElementById('type').value;
+                const grade = document.getElementById('grade').value;
+        
+                if (!name || !credits || !type || !grade) {
+                    alert("Por favor, completa todos los campos.");
+                    return;
+                }
+        
+                try {
+                    await fetch('https://uoc-andres.onrender.com/asignaturas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, credits, type, grade })
+                    });
+        
+                    loadSubjects();
+                } catch (error) {
+                    console.error("Error al añadir asignatura:", error);
+                }
+            }
+        
+            async function deleteSubject(name) {
+                if (!confirm(`¿Seguro que quieres eliminar "${name}"?`)) return;
+        
+                try {
+                    await fetch(`https://uoc-andres.onrender.com/asignaturas/${name}`, { method: 'DELETE' });
+                    loadSubjects();
+                } catch (error) {
+                    console.error("Error al eliminar asignatura:", error);
+                }
+            }
+        
+            function updateProgress() {
+                const totalBasic = 60;
+                const totalObligatory = 144;
+                const totalOptional = 36;
+        
+                const basicCredits = subjects.filter(s => s.type === "Básica").reduce((acc, s) => acc + parseInt(s.credits), 0);
+                const obligatoryCredits = subjects.filter(s => s.type === "Obligatoria").reduce((acc, s) => acc + parseInt(s.credits), 0);
+                const optionalCredits = subjects.filter(s => s.type === "Optativa").reduce((acc, s) => acc + parseInt(s.credits), 0);
+        
+                const basicPercentage = Math.min((basicCredits / totalBasic) * 100, 100);
+                const obligatoryPercentage = Math.min((obligatoryCredits / totalObligatory) * 100, 100);
+                const optionalPercentage = Math.min((optionalCredits / totalOptional) * 100, 100);
+        
+                document.getElementById('progress-basic').style.width = `${basicPercentage}%`;
+                document.getElementById('progress-obligatory').style.width = `${obligatoryPercentage}%`;
+                document.getElementById('progress-optional').style.width = `${optionalPercentage}%`;
+        
+                document.getElementById('progress-basic').textContent = `${basicCredits} / ${totalBasic}`;
+                document.getElementById('progress-obligatory').textContent = `${obligatoryCredits} / ${totalObligatory}`;
+                document.getElementById('progress-optional').textContent = `${optionalCredits} / ${totalOptional}`;
             }
     
+            function openEditModal(name) {
+                const subject = subjects.find(s => s.name === name);
+                if (!subject) return;
+    
+                currentEditingSubject = subject;
+    
+                document.getElementById('edit-name').value = subject.name;
+                document.getElementById('edit-credits').value = subject.credits;
+                document.getElementById('edit-type').value = subject.type;
+                document.getElementById('edit-grade').value = subject.grade;
+    
+                document.getElementById('edit-modal').style.display = "flex";
+            }
+    
+            function closeModal() {
+            document.getElementById('edit-modal').style.display = "none";
+            currentEditingSubject = null;
+        }
+    
+        async function saveEdit() {
+            if (!currentEditingSubject) return;
+    
+            const updatedName = document.getElementById('edit-name').value;
+            const updatedCredits = document.getElementById('edit-credits').value;
+            const updatedType = document.getElementById('edit-type').value;
+            const updatedGrade = document.getElementById('edit-grade').value;
+    
             try {
-                await fetch('https://uoc-andres.onrender.com/asignaturas', {
-                    method: 'POST',
+                await fetch(`https://uoc-andres.onrender.com/asignaturas/${currentEditingSubject.name}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, credits, type, grade })
+                    body: JSON.stringify({ name: updatedName, credits: updatedCredits, type: updatedType, grade: updatedGrade })
                 });
     
+                closeModal();
                 loadSubjects();
             } catch (error) {
-                console.error("Error al añadir asignatura:", error);
+                console.error("Error al editar asignatura:", error);
             }
         }
-    
-        async function deleteSubject(name) {
-            if (!confirm(`¿Seguro que quieres eliminar "${name}"?`)) return;
-    
-            try {
-                await fetch(`https://uoc-andres.onrender.com/asignaturas/${name}`, { method: 'DELETE' });
-                loadSubjects();
-            } catch (error) {
-                console.error("Error al eliminar asignatura:", error);
-            }
-        }
-    
-        function updateProgress() {
-            const totalBasic = 60;
-            const totalObligatory = 144;
-            const totalOptional = 36;
-    
-            const basicCredits = subjects.filter(s => s.type === "Básica").reduce((acc, s) => acc + parseInt(s.credits), 0);
-            const obligatoryCredits = subjects.filter(s => s.type === "Obligatoria").reduce((acc, s) => acc + parseInt(s.credits), 0);
-            const optionalCredits = subjects.filter(s => s.type === "Optativa").reduce((acc, s) => acc + parseInt(s.credits), 0);
-    
-            const basicPercentage = Math.min((basicCredits / totalBasic) * 100, 100);
-            const obligatoryPercentage = Math.min((obligatoryCredits / totalObligatory) * 100, 100);
-            const optionalPercentage = Math.min((optionalCredits / totalOptional) * 100, 100);
-    
-            document.getElementById('progress-basic').style.width = `${basicPercentage}%`;
-            document.getElementById('progress-obligatory').style.width = `${obligatoryPercentage}%`;
-            document.getElementById('progress-optional').style.width = `${optionalPercentage}%`;
-    
-            document.getElementById('progress-basic').textContent = `${basicCredits} / ${totalBasic}`;
-            document.getElementById('progress-obligatory').textContent = `${obligatoryCredits} / ${totalObligatory}`;
-            document.getElementById('progress-optional').textContent = `${optionalCredits} / ${totalOptional}`;
-        }
-
-        function openEditModal(name) {
-            const subject = subjects.find(s => s.name === name);
-            if (!subject) return;
-
-            currentEditingSubject = subject;
-
-            document.getElementById('edit-name').value = subject.name;
-            document.getElementById('edit-credits').value = subject.credits;
-            document.getElementById('edit-type').value = subject.type;
-            document.getElementById('edit-grade').value = subject.grade;
-
-            document.getElementById('edit-modal').style.display = "flex";
-        }
-
-        function closeModal() {
-        document.getElementById('edit-modal').style.display = "none";
-        currentEditingSubject = null;
-    }
-
-    async function saveEdit() {
-        if (!currentEditingSubject) return;
-
-        const updatedName = document.getElementById('edit-name').value;
-        const updatedCredits = document.getElementById('edit-credits').value;
-        const updatedType = document.getElementById('edit-type').value;
-        const updatedGrade = document.getElementById('edit-grade').value;
-
-        try {
-            await fetch(`https://uoc-andres.onrender.com/asignaturas/${currentEditingSubject.name}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: updatedName, credits: updatedCredits, type: updatedType, grade: updatedGrade })
-            });
-
-            closeModal();
-            loadSubjects();
-        } catch (error) {
-            console.error("Error al editar asignatura:", error);
-        }
-    }
     
         window.onload = loadSubjects;
     </script>
