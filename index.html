@@ -152,10 +152,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>Nombre</th>
+                    <th onclick="sortTableName('name')">Nombre ⬍</th>
                     <th>Créditos</th>
-                    <th onclick="sortTable('type')">Tipo ⬍</th>
-                    <th>Calificación</th>
+                    <th onclick="sortTableType('type')">Tipo ⬍</th>
+                    <th onclick="sortTableGrade('grade')">Calificación ⬍</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -203,8 +203,37 @@
         let sortOrder = 1;
         let currentEditingSubject = null;
 
+        function sortTableGrade(column) {
+            subjects.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+        
+                // Convertir calificaciones a números si es posible
+                if (column === 'grade') {
+                    valA = isNaN(parseFloat(valA)) ? valA : parseFloat(valA);
+                    valB = isNaN(parseFloat(valB)) ? valB : parseFloat(valB);
+                }
+        
+                if (typeof valA === "string") {
+                    return valA.localeCompare(valB) * sortOrder;
+                }
+                return (valA - valB) * sortOrder;
+            });
+        
+            sortOrder *= -1;
+            renderSubjects();
+        }
+
+        function sortTableName(column) {
+            subjects.sort((a, b) => a[column].localeCompare(b[column]) * sortOrder);
+            sortOrder *= -1;
+            renderSubjects();
+        }
+
+
+
             
-        function sortTable(column) {
+        function sortTableType(column) {
             subjects.sort((a, b) => {
                 if (typeof a[column] === "string") {
                     return a[column].localeCompare(b[column]) * sortOrder;
