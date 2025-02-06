@@ -1,14 +1,146 @@
 [
-  {
-    "name": "asdf",
-    "credits": 6,
-    "type": "Básica",
-    "grade": "2"
-  },
-  {
-    "name": "asdf",
-    "credits": "6",
-    "type": "Básica",
-    "grade": "2"
-  }
+{
+"name": "Fundamentos de computadores",
+"credits": "6",
+"type": "Básica",
+"grade": "Notable / 8,4"
+},
+{
+"name": "Álgebra",
+"credits": "6",
+"type": "Básica",
+"grade": "Notable / 8,7"
+},
+{
+"name": "Prácticas en empresa",
+"credits": "12",
+"type": "Optativa",
+"grade": "Reconocido"
+},
+{
+"name": "Interacción persona ordenador",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Diseño de bases de datos",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Estructura de computadores",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Notable / 7,5"
+},
+{
+"name": "Uso de bases de datos",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Ingeniería del software",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Diseño y programación orientada a objetos",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Competencia comunicativa para profesionales de las TIC",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Reconocido"
+},
+{
+"name": "Trabajo en equipo en la Red",
+"credits": "6",
+"type": "Básica",
+"grade": "Reconocido"
+},
+{
+"name": "Análisis matemático",
+"credits": "6",
+"type": "Básica",
+"grade": "Matrícula de Honor / 10"
+},
+{
+"name": "Prácticas de programación",
+"credits": "6",
+"type": "Básica",
+"grade": "Reconocido"
+},
+{
+"name": "Fundamentos de programación",
+"credits": "6",
+"type": "Básica",
+"grade": "Reconocido"
+},
+{
+"name": "Administración de redes y sistemas operativos",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Matrícula de Honor / 9,6"
+},
+{
+"name": "Redes y aplicaciones Internet",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "Sobresaliente / 10"
+},
+{
+"name": "Lógica",
+"credits": "6",
+"type": "Básica",
+"grade": "Sobresaliente / 9,4"
+},
+{
+"name": "Estadística",
+"credits": "6",
+"type": "Básica",
+"grade": "Matrícula de Honor / 9,6"
+},
+{
+"name": "Administración y gestión de organizaciones",
+"credits": "6",
+"type": "Básica",
+"grade": "2025-25/2"
+},
+{
+"name": "Fundamentos físicos de la informática",
+"credits": "6",
+"type": "Básica",
+"grade": "2025-25/2"
+},
+{
+"name": "Grafos y complejidad",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "2025-25/2"
+},
+{
+"name": "Idioma moderno I: inglés",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "2025-25/2"
+},
+{
+"name": "Inteligencia artificial",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "2025-25/2"
+},
+{
+"name": "Sistemas operativos",
+"credits": "6",
+"type": "Obligatoria",
+"grade": "2025-25/2"
+}
 ]
